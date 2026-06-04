@@ -1,0 +1,22 @@
+{
+  "name": "webbit-ui-deps",
+  "version": "1.0.0",
+  "private": true,
+  "description": "前端相依套件（取代 bower）— 由 scripts/build-ui.mjs 佈局到 app-ui/blockly/components 與 node_modules",
+  "dependencies": {
+    "jquery": "^2.2.4",
+    "jquery-ui": "^1.13.3",
+    "i18next": "^10.6.0",
+    "i18next-browser-languagedetector": "^2.2.4",
+    "i18next-xhr-backend": "^1.5.1",
+    "jquery-i18next": "1.2.1",
+    "axios": "^0.18.1",
+    "js-cookie": "^2.2.1",
+    "webcomponents.js": "^0.7.24",
+    "vue": "^3.5.0",
+    "vee-validate": "^4.15.0",
+    "vue-social-sharing": "4.0.0-alpha4",
+    "blockly": "9.3.3",
+    "js-beautify": "^1.15.0"
+  }
+}

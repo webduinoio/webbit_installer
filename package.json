@@ -1,0 +1,79 @@
+{
+  "name": "webbit-installer-win",
+  "productName": "WebBit",
+  "version": "2.0.2",
+  "description": "Web:Bit 安裝版 for Windows (x64)",
+  "main": "electron/main.js",
+  "author": "Webduino",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build:ui": "node scripts/build-ui.mjs",
+    "build:simulator": "node scripts/mirror-simulator.mjs",
+    "build:all": "npm run build:ui && npm run build:simulator",
+    "start": "electron .",
+    "dist": "electron-builder --win --x64",
+    "clean": "rm -rf app-ui release"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1",
+    "esbuild": "^0.25.0",
+    "less": "^4.2.0"
+  },
+  "build": {
+    "appId": "io.webduino.webbit",
+    "productName": "WebBit",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "i18n/**/*",
+      "build/icon.ico",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "app-ui",
+        "to": "app-ui"
+      },
+      {
+        "from": "drivers",
+        "to": "drivers"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Web:Bit",
+      "artifactName": "WebBitSetup-${version}-${arch}.${ext}",
+      "include": "build/installer.nsh",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerLanguages": [
+        "zh_TW",
+        "en_US"
+      ],
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
+    }
+  }
+}
