@@ -28,6 +28,10 @@ const DEPS = path.join(ROOT, 'ui-deps/node_modules');
 const OUT = path.join(ROOT, 'app-ui/blockly');
 const OUT_DIST = path.join(OUT, 'dist');
 
+// Electron 專屬 shim（不在 simulator-bit-edu 內，由本 repo 維護並注入 index.html）
+const SHIM_DIR = path.join(__dirname, 'ui-shims');
+const ELECTRON_DIALOG_SHIM = 'electron-dialog.js'; // 修 Electron 無 window.prompt → 建立變數無視窗
+
 const BUILD_TIME = new Date().toISOString();
 const REV = Date.now().toString(36);
 
@@ -318,8 +322,19 @@ function patchIndexHtml() {
   }
   html = html.replace(devBlock, installedBlock);
 
+  // Electron prompt shim：Electron 不支援 window.prompt()，Blockly 建立/重新命名變數
+  // 會因此無法跳出輸入視窗。注入自訂對話框（Blockly.dialog.setPrompt）修正。
+  // 放在 blockly_compressed.js 之後（此時 Blockly.dialog 已存在）。
+  copy(path.join(SHIM_DIR, ELECTRON_DIALOG_SHIM), path.join(OUT, ELECTRON_DIALOG_SHIM));
+  const blocklyTag = '<script src="node_modules/blockly/javascript_compressed.js"></script>';
+  const shimTag = `<script src="${ELECTRON_DIALOG_SHIM}?rev=${REV}"></script>`;
+  if (!html.includes(blocklyTag)) {
+    throw new Error('index.html 找不到 javascript_compressed.js 引用，無法注入 prompt shim，請更新 build-ui.mjs');
+  }
+  html = html.replace(blocklyTag, `${blocklyTag}\n  ${shimTag}`);
+
   fs.writeFileSync(path.join(OUT, 'index.html'), html);
-  log('index.html 處理完成（安裝版模式 + rev=' + REV + '）');
+  log('index.html 處理完成（安裝版模式 + prompt shim + rev=' + REV + '）');
 }
 
 // 9. 韌體離線化：下載 .bin 並改寫 vue-enum 的韌體位址

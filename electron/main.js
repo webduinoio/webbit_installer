@@ -107,10 +107,27 @@ function startServer() {
 function setupWebSerial(win) {
   const ses = win.webContents.session;
 
-  // Web Serial 權限
-  ses.setPermissionCheckHandler((_wc, permission) => {
-    return permission === 'serial';
-  });
+  // 權限白名單。
+  //   serial                   ：Web Serial（USB 連線 / 韌體燒錄）
+  //   clipboard-read           ：積木複製貼上（Ctrl+V，block-copy-paste.js）。
+  //                              ⚠ 舊版 NW.js 安裝版 isInstalledVersion__=true 時複製貼上停用，
+  //                              本版設 false 啟用了此功能，必須開放 clipboard-read，否則貼上會
+  //                              因 clipboard-read 權限被拒（NotAllowedError）而失效。
+  //   clipboard-sanitized-write：複製分享連結 / 控制台輸出 / 積木複製
+  //   media                    ：攝影機 / 麥克風（AI 影像辨識、語音積木；需連網）
+  const ALLOWED_PERMISSIONS = new Set([
+    'serial',
+    'clipboard-read',
+    'clipboard-sanitized-write',
+    'media',
+  ]);
+
+  // 同步權限檢查（navigator.permissions.query、clipboard-read 狀態等）
+  ses.setPermissionCheckHandler((_wc, permission) => ALLOWED_PERMISSIONS.has(permission));
+  // 非同步權限請求（getUserMedia 攝影機/麥克風等）
+  ses.setPermissionRequestHandler((_wc, permission, callback) =>
+    callback(ALLOWED_PERMISSIONS.has(permission))
+  );
 
   ses.setDevicePermissionHandler((details) => {
     return details.deviceType === 'serial';
