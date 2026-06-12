@@ -39,7 +39,7 @@ webbit_installer/
 │   └── installer.nsh      # NSIS 自訂腳本（安裝時靜默裝 CH340 驅動）
 ├── app-ui/                # 建置輸出（gitignore）
 └── release/               # 安裝程式輸出（gitignore）
-    └── WebBitSetup-2.0.4-x64.exe
+    └── WebBitSetup-2.0.5-x64.exe
 ```
 
 ## 系統需求
@@ -65,12 +65,12 @@ npm start
 
 # 4. 打包 Windows 安裝程式（在 macOS / Linux 上會自動下載 Windows 版 Electron 與 NSIS 工具）
 npm run dist
-# 產出：release/WebBitSetup-2.0.4-x64.exe
+# 產出：release/WebBitSetup-2.0.5-x64.exe
 ```
 
 ## 安裝方式（給使用者）
 
-1. 執行 `WebBitSetup-2.0.4-x64.exe`
+1. 執行 `WebBitSetup-2.0.5-x64.exe`
 2. 安裝程式會要求系統管理員權限（需要安裝到 Program Files 與 CH340 驅動）
 3. 可自選安裝路徑；安裝過程會自動靜默安裝 CH340 USB 驅動
 4. 完成後桌面與開始選單會有「Web:Bit」捷徑
@@ -96,7 +96,7 @@ npm run dist
 
 本安裝程式在 macOS 上跨平台建置，**請在實際 Windows 電腦上完成以下測試**：
 
-- [ ] 執行 `WebBitSetup-2.0.4-x64.exe`，完成安裝（含 UAC 提權）
+- [ ] 執行 `WebBitSetup-2.0.5-x64.exe`，完成安裝（含 UAC 提權）
 - [ ] CH340 驅動於安裝過程自動安裝成功（裝置管理員可確認）
 - [ ] 開啟 Web:Bit：Blockly 編輯器與模擬器正常顯示
 - [ ] 斷網狀態下開啟：依然正常（離線模式）

@@ -1,7 +1,7 @@
 {
   "name": "webbit-installer-win",
   "productName": "WebBit",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Web:Bit 安裝版 for Windows (x64)",
   "main": "electron/main.js",
   "author": "Webduino",

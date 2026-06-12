@@ -10,6 +10,7 @@
 
 const { app, Menu, shell, dialog } = require('electron');
 const path = require('path');
+const { execFile } = require('child_process');
 const { _, getLang, setLang } = require('./i18n');
 
 const CLOUD_URL = 'https://webbit.webduino.io/blockly/';
@@ -50,16 +51,27 @@ function showHelp(win) {
 
 /** Windows：執行 CH340 USB 驅動安裝程式（v1 開發板需要） */
 function installUsbDriver(win) {
-  const driverSetup = app.isPackaged
-    ? path.join(process.resourcesPath, 'drivers', 'usb_driver', 'SETUP.EXE')
-    : path.join(__dirname, '..', 'drivers', 'usb_driver', 'SETUP.EXE');
+  const driverDir = app.isPackaged
+    ? path.join(process.resourcesPath, 'drivers', 'usb_driver')
+    : path.join(__dirname, '..', 'drivers', 'usb_driver');
+  const driverSetup = path.join(driverDir, 'SETUP.EXE');
 
-  shell.openPath(driverSetup).then((err) => {
-    if (err) {
+  // WCH 原廠 SETUP.EXE 以 GetCurrentDirectory() 尋找 *.inf 與 DRVSETUP64\DRVSETUP64.EXE，
+  // 而非以自身 exe 路徑，故必須指定工作目錄為驅動資料夾，否則會跳出
+  // 「Not found install application,please install by hand!」。
+  // shell.openPath 無法指定工作目錄，改用 PowerShell Start-Process：
+  //   -WorkingDirectory 設定 CWD；-Verb RunAs 觸發 UAC 提權（驅動安裝需系統管理員權限）。
+  const psCommand =
+    `Start-Process -FilePath '${driverSetup}' ` +
+    `-WorkingDirectory '${driverDir}' -ArgumentList '/S' -Verb RunAs`;
+
+  execFile('powershell.exe', ['-NoProfile', '-Command', psCommand], (err) => {
+    // 使用者在 UAC 視窗按「否」也會走到這裡（Start-Process 擲出例外）→ 視為取消，不顯示錯誤。
+    if (err && !/canceled by the user|operation was cancelled/i.test(String(err))) {
       dialog.showMessageBox(win, {
         type: 'error',
         title: _('INSTALL_USB_DRIVER'),
-        message: err,
+        message: String(err),
         buttons: ['OK'],
       });
     }
