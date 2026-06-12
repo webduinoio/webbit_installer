@@ -13,7 +13,7 @@
  */
 'use strict';
 
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
@@ -162,6 +162,17 @@ function setupWebSerial(win) {
     console.log('USB 裝置移除：', port.portName || port.portId);
   });
 }
+
+/* ------------------------------ IPC ------------------------------ */
+
+// alert/confirm 關閉後恢復鍵盤焦點（Redmine #8882；preload.js refocusWindow）。
+// Windows 上原生對話框關閉後 webContents 會失去焦點，blur + focus 為已知有效解法。
+ipcMain.handle('webbit:refocus', () => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.blur();
+    mainWindow.focus();
+  }
+});
 
 /* ------------------------------ 主視窗 ------------------------------ */
 

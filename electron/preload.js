@@ -7,11 +7,24 @@
  */
 'use strict';
 
-const { contextBridge } = require('electron');
+const { contextBridge, clipboard, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('webbitDesktop', {
   platform: process.platform,
   appVersion: process.env.npm_package_version || '',
+
+  // 剪貼簿 bridge（Redmine #8882）：
+  // Chromium 的 navigator.clipboard 要求視窗有焦點（Document is not focused），
+  // Windows 上 alert/confirm 關閉後焦點遺失，積木複製貼上會整個失效。
+  // Electron 的 clipboard 模組為同步 API，不受焦點與權限檢查影響。
+  clipboard: {
+    readText: () => clipboard.readText(),
+    writeText: (text) => clipboard.writeText(String(text ?? '')),
+  },
+
+  // alert/confirm 關閉後恢復鍵盤焦點（Electron 在 Windows 的已知 bug：
+  // 原生對話框關閉後 webContents 失去焦點，需 blur + focus 才能復原）
+  refocusWindow: () => ipcRenderer.invoke('webbit:refocus'),
 });
 
 /* ------------------------- USB 裝置偵測（視窗標題提示） ------------------------- */
